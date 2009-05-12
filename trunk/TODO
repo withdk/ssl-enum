@@ -1,0 +1,8 @@
+- implement getaddrinfo for ipv4 & ipv6 support
+- add switch to change default connect and recv timeouts
+- add switch to allow different cipher files *DONE*
+- add all ciphers from openssl *PARTIALLY*
+	http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_
+	$  openssl ciphers -v 'ALL:eNULL'
+- let Wireshark guys know of SSL handshake (80), they use 16 byte len which is wrong.
+
