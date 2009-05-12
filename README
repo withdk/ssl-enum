@@ -1,0 +1,19 @@
+Portability
+-----------
+ssl-enum has compiled and run on the following platforms:
+	Linux 2.6.15-23-386
+	Windows Vista Home Edition (with CYGWIN)
+
+Installation
+------------
+$ make
+
+Usage
+-----
+$ ./ssl-enum -s 127.0.0.1 -p 443 (opt: -vf)
+	-v 1
+		Level 1 debugging will print SSL server errors if available.
+	-v 2
+		Level 2 debugging will print read and write data.
+	-f filename
+		Allows alternate ciphers file. The default is cipher-list.txt.
