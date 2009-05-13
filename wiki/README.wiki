@@ -3,20 +3,17 @@
 
 = Introduction =
 
-Add your content here.
+SSL-Enum is a standalone SSL/TLS scanner.
+
+SSL-Enum was developed due to the lack of tools available that perform SSL cipher enumeration without requiring OpenSSL or SSLeay.
+
+Please be aware the tools is still very much BETA and contributing is welcome and encouraged.
 
 = Portability =
 ssl-enum should compile on any ANSI C compatible system. It has compiled and run on the following platforms:
    * Linux 2.6.15-23-386
    * Windows Vista Home Edition (with CYGWIN)
 
-= Details =
-
-SSL-Enum is a standalone SSL/TLS scanner.
-
-SSL-Enum was developed due to the lack of tools available that perform SSL cipher enumeration without requiring OpenSSL or SSLeay.
-
-Please be aware the tools is still very much BETA and contributing is welcome and encouraged.
 
 = Installation = 
 $ make
