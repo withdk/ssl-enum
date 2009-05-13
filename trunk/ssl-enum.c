@@ -34,10 +34,10 @@ main(int argc, char *argv[])
 	int sock;
 	char *servIP;
 	char hostname[128];
-    unsigned short sslPort;     	
-    struct sockaddr_in sa;      
-    char *pkt_in;     
-    int totalBytesRcvd;
+	unsigned short sslPort=0;     	
+   	struct sockaddr_in sa;      
+   	char *pkt_in;     
+   	int totalBytesRcvd;
 	int struct_len;
                            
 	char *cipher;
@@ -46,20 +46,23 @@ main(int argc, char *argv[])
 	unsigned char *finished_hello; 
 	
 	int opt;
+	int opterr=0;
 	int verbose=0;
 	int cipher_arg=0;
+	int kflag=0;
 
 	FILE *fp;
-    char fbuf[MAXLINE];
-    unsigned short sock_cipher;
-    char *cipherlist[3];
+	char fbuf[MAXLINE];
+	unsigned short sock_cipher;
+	char *cipherlist[3];
 	
-	while((opt=getopt(argc,argv, "s:p:c:v:f:23")) != -1)
+	while((opt=getopt(argc,argv, "s:p:c:v:f:k")) != -1)
 	{
 		switch(opt)
 		{
 			case 's':
 				servIP = optarg;
+				opterr++;
 				break;
 			case 'p':
 				sslPort = atoi(optarg);
@@ -73,18 +76,18 @@ main(int argc, char *argv[])
 				cipher_arg = 1;
 				break;
 			case 'v':
-                 verbose = atoi(optarg);
-			case '2':
-				printf("using ssl 2\n");
+				verbose = atoi(optarg);
 				break;
-			case '3':
-				printf("using ssl 3\n");
+			case 'k':
+				kflag=1;
 				break;
 			default:
 				break;
 		}
 	}
 	 
+	if (opterr < 1) 
+		DieWithError("usage: ./ssl-enum -s x.x.x.x -p 443 (opt: -f otherciphers,-v1,-v2,-k)");
 
 	if (!sslPort)
 		sslPort = 443;
@@ -92,115 +95,120 @@ main(int argc, char *argv[])
 		Access cipher list or die
 	*/
 	if (!default_file)
-		cipherfile = "cipher-list.txt";
+		cipherfile = "weak-ciphers.txt";
 	if ( (fp=fopen(cipherfile, "r")) == NULL)
 		DieWithError("fopen() failed");
 	/*
 		Loop around ciphers and test each one
 		todo: this is a bit rudimentary
 	*/
-    while ( fgets(fbuf, MAXLINE, fp) != 0)
+	while ( fgets(fbuf, MAXLINE, fp) != 0)
 	{
 		/*
 			Skip blank lines and comments
 		*/
 		if (fbuf[0] == '#' || fbuf[0] == '\n' || fbuf[0] == '\r')
-         continue;      
+			continue;      
 		/*
 			Tokenise cipherlist file
 		*/
-        if ((cipherlist[0]=strtok(fbuf, "\t")) == NULL) /* Hex value */
+		if ((cipherlist[0]=strtok(fbuf, "\t")) == NULL) /* Hex value */
 			DieWithError("strtok() failed: invalid cipherlist format in file");
-        if ((cipherlist[1]=strtok(NULL, "\t")) == NULL) /* Description */
+		if ((cipherlist[1]=strtok(NULL, "\t")) == NULL) /* Description */
 			DieWithError("strtok() failed: invalid cipherlist format in file");
-        if ((cipherlist[2]=strtok(NULL, "\t")) == NULL)	/* Export */
+		if ((cipherlist[2]=strtok(NULL, "\t")) == NULL)	/* Export */
 			DieWithError("strtok() failed: invalid cipherlist format in file");
-	/*
-		We initialise our client_hello struct
-		and build the byte stream ready to send.
-	*/
-	/*
-		Decimal value for 1 in TLS1 is 49 (man ascii)
+		/*
+			We initialise our client_hello struct
+			and build the byte stream ready to send.
+		*/
+		/*
+			Decimal value for 1 in TLS1 is 49 (man ascii)
 		
-		We use this for comparison as it saves us having 
-		to use string compare functions.
-	*/
-	if ((int)cipherlist[1][3] == 50) {
-    	struct ssl2_client_hello ppkt_out;
-		struct_len = sizeof(struct ssl2_client_hello);
-		finished_hello=build_ssl2_hello_msg(&ppkt_out, cipher_arg, cipherlist[0], cipherlist[1]);
-	}
-	else {
-		struct tls1_ssl3_client_hello ppkt_out;
-		struct_len = sizeof(struct tls1_ssl3_client_hello);
-		finished_hello=build_hello_msg(&ppkt_out, cipher_arg, cipherlist[0], cipherlist[1]);
-	}
-	/* 
-		Display our client hello request if 
-		verbose is on 
-	*/
-	if (verbose==2)
-		make_ssl_debug(finished_hello, "Sent Data", struct_len);
-    /*
-		call socket
-	*/
-	sock=new_socket(&sa, servIP, sslPort);
-	/*
-		call connect
-	*/
-	new_connect(&sa, sock);
-	/*
-		call send
-	*/
-	new_write(sock, finished_hello, struct_len);
+			We use this for comparison as it saves us having 
+			to use string compare functions.
+		*/
+		if ((int)cipherlist[1][3] == 50) {
+    			struct ssl2_client_hello ppkt_out;
+			struct_len = sizeof(struct ssl2_client_hello);
+			finished_hello=build_ssl2_hello_msg(&ppkt_out, cipher_arg, cipherlist[0], cipherlist[1]);
+		}
+		else {
+			struct tls1_ssl3_client_hello ppkt_out;
+			struct_len = sizeof(struct tls1_ssl3_client_hello);
+			finished_hello=build_hello_msg(&ppkt_out, cipher_arg, cipherlist[0], cipherlist[1]);
+		}
+		/* 
+			Display our client hello request if 
+			verbose is on 
+		*/
+		if (verbose==2)
+			make_ssl_debug(finished_hello, "Sent Data", struct_len);
+    		/*
+			call socket
+		*/
+		sock=new_socket(&sa, servIP, sslPort);
+		/*
+			call connect
+		*/
+		new_connect(&sa, sock);
+		/*
+			call send
+		*/
+		new_write(sock, finished_hello, struct_len);
 		
-    /* 
-		call recv
-	*/
-	struct getBytes gb;
-	new_read(sock, &gb, struct_len);
-	/*
-		retreive recv data
-	*/
-	totalBytesRcvd=gb.totalBytesRcvd;
-	pkt_in=malloc(totalBytesRcvd);
-	memset(pkt_in, 0, totalBytesRcvd);
-	pkt_in=gb.recv_data;
-	/* 
-		Display received data in hex 
-		for debugging 
-	*/
-	if (verbose==2)
-		make_ssl_debug((unsigned char*)pkt_in, "Received Data", totalBytesRcvd);
-	/* 
-		Check for SSL Error 
-	*/
-	if (pkt_in[0] == SSLALERT && totalBytesRcvd == 7 && verbose > 0) 
-		process_ssl_alert(pkt_in, cipherlist[0], cipherlist[1], cipherlist[2]);
-	/* 
-		Check for server hello 
-		
-		todo: might want to make this a bit smarter
-	*/
-	if (pkt_in[0] == SSLHANDSHAKE) 
-		process_ssl_hello(pkt_in, cipherlist[0], cipherlist[1], cipherlist[2]);
-	/*
-		Pain in the behind but if SSLv2 cipher is
-		not supported, it doesn't actually tell us,
-		it simply sets the len to 0000.
-	*/
-	if (pkt_in[10] == SSL2_SERVERHELLOBYTE)
-		process_ssl_hello(pkt_in, cipherlist[0], cipherlist[1], cipherlist[2]);
-	/*
-		Close sock
-	*/
-    close(sock);
-	/*
-		Clean up - more work here.
-	*/
-    free(finished_hello);
-	/* todo: having trouble free'ing, so we null it instead */
-	memset(gb.recv_data, 0, totalBytesRcvd);
+    		/* 
+			call recv
+		*/
+		struct getBytes gb;
+		new_read(sock, &gb, struct_len);
+		/*
+			retreive recv data
+		*/
+		totalBytesRcvd=gb.totalBytesRcvd;
+		pkt_in=malloc(totalBytesRcvd);
+		memset(pkt_in, 0, totalBytesRcvd);
+		pkt_in=gb.recv_data;
+		/* 
+			Display received data in hex 
+			for debugging 
+		*/
+		if (verbose==2)
+			make_ssl_debug((unsigned char*)pkt_in, "Received Data", totalBytesRcvd);
+		/* 
+			Check for server hello OR
+			Check for SSL Error
+
+			Some SSL/TLS services don't respond with errors so we assume its
+                        an UNSUPPORTED cipher.
+
+                        To complicate matters, some Apache web servers respond with an ASCII
+                        error text message so we can't check if we are really talking to an
+                        SSL/TLS service.
+
+                        So we'll use a cautious flag. If the flag is set, we'll stop scanning,
+                        however, the default will be to scan all ciphers in file.
+
+			todo: might want to make this a bit smarter
+		*/
+		if (pkt_in[0] == SSLHANDSHAKE ||
+			pkt_in[10] == SSL2_SERVERHELLOBYTE) 
+				process_ssl_hello(pkt_in, cipherlist[0], cipherlist[1], cipherlist[2]);
+		else if (pkt_in[0] == SSLALERT && totalBytesRcvd == 7)
+				process_ssl_alert(pkt_in, cipherlist[0], cipherlist[1], cipherlist[2], verbose);
+		else
+			if (kflag == 1)
+				DieWithError("-k flag set: recv SSL/TLS data not recognised, stopping scan.\n");
+		/*
+			Close sock
+		*/
+    		close(sock);
+		/*
+			Clean up - more work here.
+		*/
+    			free(finished_hello);
+			/* todo: having trouble free'ing, so we null it instead */
+			memset(gb.recv_data, 0, totalBytesRcvd);
 	/*
 		Close file pointer
 	*/

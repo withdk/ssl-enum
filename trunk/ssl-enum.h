@@ -91,7 +91,7 @@ char *hexstring(const unsigned char*, size_t);
 /* Allows us to timeout a connection */
 void sig_alarm(int);
 void process_ssl_hello(char *serverhello, char *c1, char *c2, char *c3);
-void process_ssl_alert(char *sslalert,char *c1, char *c2, char *c3);
+void process_ssl_alert(char *sslalert,char *c1, char *c2, char *c3, int verbose);
 void DieWithError(char *errorMessage);
 void make_ssl_debug(unsigned char *buf, char *msg, int len);
 unsigned int hstr_i(const char *cptr);
