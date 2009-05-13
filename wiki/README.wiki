@@ -35,5 +35,5 @@ $ ./ssl-enum -s 127.0.0.1 -p 443 (opt: -vf)
         So we'll use a cautious flag. If the flag is set, we'll stop scanning,
         if the returned data does not match standard SSL/TLS data.
 
-        Note: The default will be to scan all ciphers in the chosen/default
+        Note: The default will be to scan all ciphers in the chosen/default 
         ciphers file.
