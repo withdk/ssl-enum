@@ -17,3 +17,15 @@ $ ./ssl-enum -s 127.0.0.1 -p 443 (opt: -vf)
 		Level 2 debugging will print read and write data.
 	-f filename
 		Allows alternate ciphers file. The default is cipher-list.txt.
+    -k fast SSL/TLS sweep
+        Some SSL/TLS services don't respond with errors so we assume its
+        an UNSUPPORTED cipher. To complicate matters, some Apache web servers
+        respond with an ASCII error text message so we can't check if we are
+        really talking to an SSL/TLS service.
+
+        So we'll use a cautious flag. If the flag is set, we'll stop scanning,
+        if the returned data does not match standard SSL/TLS data. 
+    
+        Note: The default will be to scan all ciphers in the chosen/default
+        ciphers file.
+

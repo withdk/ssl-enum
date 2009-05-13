@@ -364,8 +364,8 @@ make_ssl_debug(unsigned char *buf, char *msg, int len)
 {
 	char *h;
 	
-    h=hexstring((unsigned char *)buf, len);
-		printf("%s: %s (length %d)\n", msg, h, len);
+	h=hexstring((unsigned char *)buf, len);
+	printf("%s: %s (length %d)\n", msg, h, len);
 	free(h);
 }
 
@@ -375,11 +375,14 @@ make_ssl_debug(unsigned char *buf, char *msg, int len)
 	what went wrong.
 */
 void
-process_ssl_alert(char *sslalert, char *c1, char *c2, char *c3)
+process_ssl_alert(char *sslalert, char *c1, char *c2, char *c3, int verbose)
 {	
 	/* More errors in openssl */
 	/* ../../openssl-0.9.8k/crypto/err/openssl.ec */
 
+  if (verbose > 0) 
+  {
+	
 	switch (sslalert[SSLALERTBYTE])
 	{
 		case 0:
@@ -450,6 +453,7 @@ process_ssl_alert(char *sslalert, char *c1, char *c2, char *c3)
 			printf("UNKNOWN SSL ERROR\n");
 			break;
 	}
+  }
 
 }
 
