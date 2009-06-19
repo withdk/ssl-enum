@@ -43,7 +43,7 @@ $ ./ssl-enum -s 127.0.0.1 -p 443 (opt: -vf)
 =Example Usage=
 ssl-enum will use the weak-ciphers.txt file by default, however, we manually specify it in the following example to demonstrate file usage:
 {{{
-$ time ./ssl-enum -s 212.241.213.73 -p 443 -f weak-ciphers.txt
+$ time ./ssl-enum -s x.x.x.x -p 443 -f weak-ciphers.txt
 0x020080        SSL2_RC4_128_EXPORT40_WITH_MD5  SSL_EXPORT
 0x040080        SSL2_RC2_CBC_128_CBC_EXPORT40_WITH_MD5  SSL_EXPORT
 0x03    SSL3_RSA_RC4_40_MD5     SSL_EXPORT
@@ -60,7 +60,7 @@ $ time ./ssl-enum -s 212.241.213.73 -p 443 -f weak-ciphers.txt
 0x60    TLS1_RSA_EXPORT1024_WITH_RC4_56_MD5     SSL_EXPORT
 0x61    TLS1_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5 SSL_EXPORT
 0x62    TLS1_RSA_EXPORT1024_WITH_DES_CBC_SHA    SSL_EXPORT
-(74 ciphers checked)
+(Total ciphers checked: 75)
 
 real    0m11.305s
 user    0m0.000s
