@@ -180,7 +180,7 @@ build_hello_msg(struct tls1_ssl3_client_hello *clientHello, int opt, char *c1, c
 	
 	/* 
 		We copy our items off struct one by one to ensure 
-		correct alignment at compile time.
+		correct alignment at run time.
 	*/
 	off=p;
 	
@@ -349,9 +349,95 @@ new_read(int sock, struct getBytes *byte, int struct_len)
 	This function can be a lot better.
 */
 void
-process_ssl_hello(char *serverhello, char *c1, char *c2, char *c3)
+process_ssl_hello(char *serverhello, char *c1, char *c2, char *c3, int verbose)
 {
-		printf("0x%s\t%s\t%s", c1,c2,c3);
+        // This only supports SSLv3 for now.
+        if (verbose>3&&serverhello[0] == SSLHANDSHAKE)
+        {
+        unsigned char *h;
+        struct tls1_ssl3_server_hello *hi;
+        hi=malloc(sizeof(struct tls1_ssl3_server_hello));
+        memset(hi, 0, sizeof(struct tls1_ssl3_server_hello));
+        
+        memcpy(&hi->content_type, serverhello, sizeof(hi->content_type));
+            serverhello += sizeof(hi->content_type);
+        memcpy(&hi->ssl_version, serverhello, sizeof(hi->ssl_version));
+            serverhello += sizeof(hi->ssl_version);
+        memcpy(&hi->hello_len, serverhello, sizeof(hi->hello_len));
+            serverhello += sizeof(hi->hello_len);
+        memcpy(&hi->server_hello, serverhello, sizeof(hi->server_hello));
+            serverhello += sizeof(hi->server_hello);
+        memcpy(&hi->server_hello_len, serverhello, sizeof(hi->server_hello_len));
+            /*
+                Bitwise left shift to move ensure 24 bit not 32 bit
+            */ 
+            hi->server_hello_len = hi->server_hello_len << 8;
+            serverhello += sizeof(hi->server_hello_len)-1;
+        memcpy(&hi->ssl_version_hello, serverhello, sizeof(hi->ssl_version_hello));
+            serverhello += sizeof(hi->ssl_version_hello);
+        memcpy(&hi->gmt_unix_time, serverhello, sizeof(hi->gmt_unix_time));
+            serverhello += sizeof(hi->gmt_unix_time);
+        memcpy(&hi->random_bytes, serverhello, sizeof(hi->random_bytes));
+            serverhello += sizeof(hi->random_bytes);
+        memcpy(&hi->SessionID_len, serverhello, sizeof(hi->SessionID_len));
+            serverhello += sizeof(hi->SessionID_len);
+
+        if (hi->SessionID_len > 0) {
+          hi->SessionID = malloc(hi->SessionID_len);
+          memset(hi->SessionID, 0, sizeof(hi->SessionID_len));
+          memcpy(hi->SessionID, serverhello, hi->SessionID_len);
+            serverhello += hi->SessionID_len; 
+        }
+
+        memcpy(&hi->CipherSuite, serverhello, sizeof(hi->CipherSuite));
+            serverhello += sizeof(hi->CipherSuite);
+        memcpy(&hi->compression_method, serverhello, sizeof(hi->compression_method));
+            serverhello += sizeof(hi->compression_method);
+         
+        /* 
+            SSL Output for debugging and information
+            gathering.
+        */
+        printf("\nPACKET DECODE:\n");
+        printf("HANDSHAKE TYPE: %d\n", hi->content_type);
+        printf("SSL VERSION: %d\n", hi->ssl_version);
+        printf("LENGTH: %d\n", htons(hi->hello_len));
+        printf("SERVER HELLO: %d \n", hi->server_hello);
+        printf("LENGTH: %d\n", htonl(hi->server_hello_len));
+        printf("SSL VERSION: %d\n", hi->ssl_version_hello);
+        
+        time_t epch = htonl(hi->gmt_unix_time);
+        printf("GMT UNIX TIME: %s", asctime(gmtime(&epch)));
+        
+        h = hexstring((unsigned char*)&hi->random_bytes, sizeof(hi->random_bytes));
+        	printf("RANDOM BYTES: %s\n", h);
+        	free(h);
+
+        printf("SESSION LEN: %d\n", hi->SessionID_len);
+
+        if (hi->SessionID_len > 0) {
+	      h = hexstring(hi->SessionID, hi->SessionID_len);
+            printf("SESSIONID: %s\n", h);
+	    	free(h);
+        } 
+        else {
+            printf("SESSIONID: NULL\n");
+        }
+
+        h = hexstring((unsigned char*)&hi->CipherSuite, sizeof(hi->CipherSuite));
+            printf("CIPHER: %s\n", h);
+            free(h);
+
+        printf("COMPRESSION: %d\n", hi->compression_method);
+
+       // uint8_t compression_method;     /* 0-255 safe to leave null or 00 */
+
+        free(hi);
+
+        }
+
+            printf("0x%s\t%s\t%s", c1,c2,c3);
+
 }
 
 
