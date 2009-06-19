@@ -1,6 +1,4 @@
-#summary README
 #labels ssl,tls,sslcipherscanner
-
 = Introduction =
 
 SSL-Enum is a standalone SSL/TLS scanner.
@@ -10,8 +8,6 @@ There are a number of SSL cipher enumeration tools but (that I've seen) rely on 
 SSL-Enum hopes to become a flexible, standalone SSL inspection tool.
 
 Please be aware the tools is still very much BETA and contributing is welcome and encouraged. 
-
-Please be aware the tools is still very much BETA and contributing is welcome and encouraged.
 
 = Portability =
 ssl-enum should compile on any ANSI C compatible system. It has compiled and run on the following platforms:
