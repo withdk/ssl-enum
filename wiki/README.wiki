@@ -60,6 +60,7 @@ $ time ./ssl-enum -s 212.241.213.73 -p 443 -f weak-ciphers.txt
 0x60    TLS1_RSA_EXPORT1024_WITH_RC4_56_MD5     SSL_EXPORT
 0x61    TLS1_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5 SSL_EXPORT
 0x62    TLS1_RSA_EXPORT1024_WITH_DES_CBC_SHA    SSL_EXPORT
+(74 ciphers checked)
 
 real    0m11.305s
 user    0m0.000s
