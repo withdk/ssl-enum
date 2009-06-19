@@ -33,7 +33,6 @@ main(int argc, char *argv[])
 {	
 	int sock;
 	char *servIP;
-	char hostname[128];
 	unsigned short sslPort=0;     	
    	struct sockaddr_in sa;      
    	char *pkt_in;     
@@ -53,7 +52,6 @@ main(int argc, char *argv[])
 
 	FILE *fp;
 	char fbuf[MAXLINE];
-	unsigned short sock_cipher;
 	char *cipherlist[3];
 	
 	while((opt=getopt(argc,argv, "s:p:c:v:f:k")) != -1)
@@ -142,8 +140,8 @@ main(int argc, char *argv[])
 			Display our client hello request if 
 			verbose is on 
 		*/
-		if (verbose==2)
-			make_ssl_debug(finished_hello, "Sent Data", struct_len);
+		if (verbose>2)
+			make_ssl_debug(finished_hello, "Sent", struct_len);
     		/*
 			call socket
 		*/
@@ -173,8 +171,8 @@ main(int argc, char *argv[])
 			Display received data in hex 
 			for debugging 
 		*/
-		if (verbose==2)
-			make_ssl_debug((unsigned char*)pkt_in, "Received Data", totalBytesRcvd);
+		if (verbose>2)
+			make_ssl_debug((unsigned char*)pkt_in, "Recv", totalBytesRcvd);
 		/* 
 			Check for server hello OR
 			Check for SSL Error
@@ -193,7 +191,7 @@ main(int argc, char *argv[])
 		*/
 		if (pkt_in[0] == SSLHANDSHAKE ||
 			pkt_in[10] == SSL2_SERVERHELLOBYTE) 
-				process_ssl_hello(pkt_in, cipherlist[0], cipherlist[1], cipherlist[2]);
+				process_ssl_hello(pkt_in, cipherlist[0], cipherlist[1], cipherlist[2], verbose);
 		else if (pkt_in[0] == SSLALERT && totalBytesRcvd == 7)
 				process_ssl_alert(pkt_in, cipherlist[0], cipherlist[1], cipherlist[2], verbose);
 		else
