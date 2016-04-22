@@ -1,6 +1,7 @@
 Portability
 -----------
 ssl-enum has compiled and run on the following platforms:
+	Linux 3.16.0-70
 	Linux 2.6.15-23-386
 	Windows Vista Home Edition (with CYGWIN)
 
@@ -10,22 +11,15 @@ $ make
 
 Usage
 -----
-$ ./ssl-enum -s 127.0.0.1 -p 443 (opt: -vf)
-	-v 1
-		Level 1 debugging will print SSL server errors if available.
-	-v 2
-		Level 2 debugging will print read and write data.
+$ usage: ./ssl-enum -s hostname/ip (opt: -p 8443 -f otherciphers,-v[1-5],-k)
+	-s hostname or IP address of target.
+	-v1 
+		Increase level of verbosity (v1 - v5).
 	-f filename
 		Allows alternate ciphers file. The default is cipher-list.txt.
-    -k fast SSL/TLS sweep
-        Some SSL/TLS services don't respond with errors so we assume its
-        an UNSUPPORTED cipher. To complicate matters, some Apache web servers
-        respond with an ASCII error text message so we can't check if we are
-        really talking to an SSL/TLS service.
-
-        So we'll use a cautious flag. If the flag is set, we'll stop scanning,
-        if the returned data does not match standard SSL/TLS data. 
-    
-        Note: The default will be to scan all ciphers in the chosen/default
-        ciphers file.
-
+   	-k ends scan early if non-standard responses.
+        	Some SSL/TLS services don't respond with SSL errors so we assume its
+        	an UNSUPPORTED cipher. To complicate matters further, some Apache &
+		IIS configurations will allow weak SSL connections but don't allow
+		access at the application layer. This lets the web server produce a
+		"pretty" error message but breaks SSL scanning. More work needed here.
