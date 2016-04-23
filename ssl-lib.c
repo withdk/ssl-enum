@@ -162,7 +162,11 @@ build_hello_msg ( struct tls1_ssl3_client_hello *clientHello, int opt, char *c1,
     clientHello->client_handshake = CLIENT_HELLO;
     clientHello->client_len_pad = 0x00; /* pad */
     clientHello->client_len = htons ( sizeof ( struct tls1_ssl3_client_hello )-11 );	/* Length for rest of struct */
-    clientHello->client_version = htons ( SSL3_VERSION );	/* SSL/TLS version (0x0301) */
+    if ( ( int ) c2[3] == 49 )
+        clientHello->client_version = htons ( TLS1_VERSION );
+    else
+        clientHello->client_version = htons ( SSL3_VERSION );
+    //clientHello->client_version = htons ( SSL3_VERSION );	/* SSL/TLS version (0x0301) */
     //clientHello->random_bytes[] = '';  /* We can leave this blank as we aren't renewing a session */
     clientHello->sessionID = SESSIONID;      /* opaque SessionID<0..32>, safe to leave as 0 */
     clientHello->cipher_len = htons ( CIPHER_LEN ); /* cipher len, 2 bytes per cipher */
