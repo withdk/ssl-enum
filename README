@@ -1,6 +1,6 @@
 Intro
 ------
-I wrote this as a POC back in 2009 after an illuminating with Roy Hills (NTA Monitor). The discussion went something like this: "it would be great to code up a faster SSL cipher enumeration tool that only performed the initial SSL HELLO request, and that didn't rely on OpenSSL." The key advantages here are speed and the ability to discover proprietary ciphers not supported by OpenSSL".
+I wrote this as a POC back in 2009 after an illuminating discussion with Roy Hills (NTA Monitor) relating to SSL. The discussion went something like this: "It would be great to code up a faster SSL cipher enumeration tool that didn't rely on OpenSSL and only performed the initial SSL HELLO request." The key advantages here are speed, by not requiring a full SSL handshake, and the ability to discover proprietary ciphers not supported by OpenSSL.
 
 Although I've made a couple of recent changes, this code is the result of a few late nights back in 2009 and should be considered ALPHA :)
 
