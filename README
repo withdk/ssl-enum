@@ -1,11 +1,8 @@
 Intro
 ------
-I wrote this as a POC back in 2009 after an illuminating with Roy Hill (NTA Monitor). The discussion went something like this:
-"it would be great to code up an SSL cipher enumeration tool that only performed an initial handshake and then tore down the
-connection... it also means we can discover proprietary ciphers not supported by OpenSSL".
+I wrote this as a POC back in 2009 after an illuminating with Roy Hill (NTA Monitor). The discussion went something like this: "it would be great to code up an SSL cipher enumeration tool that only performed an initial handshake and then tore down the connection... it also means we can discover proprietary ciphers not supported by OpenSSL".
 
-Although I've made a couple of recent changes, this code is the result of a few late nights back in 2009 and should be 
-considered ALPHA :)
+Although I've made a couple of recent changes, this code is the result of a few late nights back in 2009 and should be considered ALPHA :)
 
 Installation
 ------------
